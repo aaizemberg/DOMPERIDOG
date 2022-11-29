@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
 from app.core.schemas.user import User
-from typing import Union
 from typing import List
 
 class Document(BaseModel):

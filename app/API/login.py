@@ -1,13 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.core.schemas.user import User, UserInDB
 from datetime import datetime, timedelta
 from app.core.models.token import Token
 from app.API.users import pwd_hasher
-from jose import JWTError, jwt
+from jose import jwt
 from app.dbs import user_collection
 from app.core.settings import settings
-from passlib.context import CryptContext
 from typing import Union
 
 router = APIRouter()

@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
-from app.core.schemas.user import User, UserInDB
+from app.core.schemas.user import User
 from app.core.schemas.document import Document
 from app.core.models.user_credentials import UserCredentials
-from app.dbs import user_collection, document_collection, mongodb
+from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import List
@@ -87,8 +87,6 @@ async def get_user_favourites_by_username(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="You don not have permission to use this resource",
             )
-
-# POSTs
 
 @router.post(
         "", 

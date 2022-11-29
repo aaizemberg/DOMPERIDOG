@@ -1,7 +1,7 @@
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.settings import settings
-from app.API import documents, login, users
+from app.API import login, users
 
 def get_application():
     app = FastAPI(title=settings.PROJECT_NAME)
