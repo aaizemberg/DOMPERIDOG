@@ -42,7 +42,7 @@ async def get_current_user(
     return user
 
 @router.get(
-        "/profile", 
+        "/me", 
         response_model = User, 
         status_code = status.HTTP_200_OK
     )
