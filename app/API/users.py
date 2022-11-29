@@ -52,15 +52,15 @@ async def get_current_user_profile(
     return current_user
 
 @router.get(
-        "/{user_id}", 
+        "/{username}", 
         response_model = User, 
         status_code = status.HTTP_200_OK
     )
-async def get_user_by_id(
-        user_id: int, 
+async def get_user_by_username(
+        username: str, 
         current_user: User = Depends(get_current_user)
     ):
-    if(current_user["user_id"] == user_id):
+    if(current_user["username"] == username):
         return current_user
     else:
         
@@ -71,11 +71,11 @@ async def get_user_by_id(
 
 
 @router.get(
-        "/{user_id}/favourites", 
+        "/{username}/favourites", 
         response_model = List[Document], 
         status_code = status.HTTP_200_OK
     )
-async def get_user_favourites_by_user_id(
+async def get_user_favourites_by_username(
         username: str, 
         current_user: User = Depends(get_current_user)
     ):
@@ -119,11 +119,11 @@ async def register(
         "/{id}", 
         status_code = status.HTTP_200_OK
     )
-async def delete_user_by_id(
+async def delete_user_by_username(
         username: str, 
         current_user: User = Depends(get_current_user),
     ):
-    if not current_user["user_id"] == id:
+    if not current_user["username"] == username:
         raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="You don not have permission to use this resource"
