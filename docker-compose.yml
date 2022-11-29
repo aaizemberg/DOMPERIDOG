@@ -10,7 +10,7 @@ services:
       - mongodata:/data/db
 
   rediscache:
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    command: redis-server --save 20 1 --loglevel warning --requirepass F4jvVUXEPQNW9QckrRNKRlzX5
     image: redis/redis-stack-server:latest
     ports:
       - 6379:6379
