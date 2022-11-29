@@ -1,0 +1,23 @@
+version: "3.1"
+
+services:
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodata:/data/db
+
+  rediscache:
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    image: redis/redis-stack-server:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redisdata:/data
+
+
+volumes:
+  mongodata:
+  redisdata:
