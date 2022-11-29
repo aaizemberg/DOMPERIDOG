@@ -46,7 +46,7 @@ def generate_access_token(
     return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_SIGNATURE_ALGORITHM)
 
 @router.post(
-        "/login", 
+        "", 
         response_model = Token, 
         status_code = 201
     )
