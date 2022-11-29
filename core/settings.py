@@ -8,9 +8,6 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_SIGNATURE_ALGORITHM: str
     JWT_TOKEN_EXPIRE_MINUTES: int
-    REDIS_CACHE_HOSTNAME: str
-    REDIS_CACHE_PORT: int
-    REDIS_CACHE_PASSWORD: str
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:

@@ -130,7 +130,6 @@ async def delete_user_by_id(
             )
     documents = list(document_collection.find({"author.username": username}))
     for document in documents:
-        # TODO eliminar de la cache redis los documentos
         document_collection.delete_one({"_id": document["_id"]})
     user_collection.delete_one({"username": username})
     return {}

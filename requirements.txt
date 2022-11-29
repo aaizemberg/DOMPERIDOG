@@ -2,7 +2,6 @@ uvicorn==0.17.6
 fastapi==0.78.0
 pymongo==4.1.1
 pydantic==1.9.1
-redis==4.3.4
 async-timeout==4.0.2
 Deprecated==1.2.13
 packaging==21.3 

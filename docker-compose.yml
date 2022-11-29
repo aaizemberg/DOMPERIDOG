@@ -9,15 +9,5 @@ services:
     volumes:
       - mongodata:/data/db
 
-  rediscache:
-    command: redis-server --save 20 1 --loglevel warning --requirepass F4jvVUXEPQNW9QckrRNKRlzX5
-    image: redis/redis-stack-server:latest
-    ports:
-      - 6379:6379
-    volumes:
-      - redisdata:/data
-
-
 volumes:
   mongodata:
-  redisdata:
