@@ -22,3 +22,4 @@ pyasn1==0.4.8
 ecdsa==0.18.0
 rsa==4.9
 six==1.16.0
+python-dotenv==0.21.0

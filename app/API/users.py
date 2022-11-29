@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordBearer
-from core.settings import settings
-from core.schemas.user import User, UserInDB
-from core.schemas.document import Document
-from core.models.user_credentials import UserCredentials
-from dbs import user_collection, document_collection, mongodb
+from app.core.settings import settings
+from app.core.schemas.user import User, UserInDB
+from app.core.schemas.document import Document
+from app.core.models.user_credentials import UserCredentials
+from app.dbs import user_collection, document_collection, mongodb
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-
+from typing import List
 
 pwd_hasher = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -72,7 +72,7 @@ async def get_user_by_id(
 
 @router.get(
         "/{user_id}/favourites", 
-        response_model = list[Document], 
+        response_model = List[Document], 
         status_code = status.HTTP_200_OK
     )
 async def get_user_favourites_by_user_id(
@@ -80,7 +80,7 @@ async def get_user_favourites_by_user_id(
         current_user: User = Depends(get_current_user)
     ):
     if(current_user["username"] == username):
-        links = list(document_collection.find({"author.username": username}).sort("creation_date", -1))
+        links = List(document_collection.find({"author.username": username}).sort("creation_date", -1))
         return links
     else:
         raise HTTPException(
@@ -128,7 +128,7 @@ async def delete_user_by_id(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="You don not have permission to use this resource"
             )
-    documents = list(document_collection.find({"author.username": username}))
+    documents = List(document_collection.find({"author.username": username}))
     for document in documents:
         document_collection.delete_one({"_id": document["_id"]})
     user_collection.delete_one({"username": username})

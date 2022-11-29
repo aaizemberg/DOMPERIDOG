@@ -1,5 +1,5 @@
 import pymongo
-from core.settings import settings
+from app.core.settings import settings
 
 mongo_client = pymongo.MongoClient(settings.MONGODB_URL)
 mongodb = mongo_client["domperidog"]
@@ -8,7 +8,7 @@ document_collection = mongodb["documents"]
 
 user_collection.create_index([('username', pymongo.TEXT)], name='username_index', default_language='english')
 document_collection.create_index([('title', pymongo.TEXT)], name='title_index', default_language='english')
-document_collection.create_index([('author', pymongo.TEXT)], name='author_index', default_language='english')
+# document_collection.create_index([('author', pymongo.TEXT)], name='author_index', default_language='english')
 
 try:
     mongo_client.list_database_names()

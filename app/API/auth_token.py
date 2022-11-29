@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from core.schemas.user import User, UserInDB
+from app.core.schemas.user import User, UserInDB
 from datetime import datetime, timedelta
-from core.models.token import Token
-from API.users import pwd_hasher
+from app.core.models.token import Token
+from app.API.users import pwd_hasher
 from jose import JWTError, jwt
-from dbs import user_collection
-from core.settings import settings
+from app.dbs import user_collection
+from app.core.settings import settings
 from passlib.context import CryptContext
 from typing import Union
 
@@ -61,6 +61,6 @@ async def login(
             detail="Bad credentials, incorrect username or password",
         )
     access_token = generate_access_token(
-        data={"sub": user["username"]}, expires_delta=timedelta(minutes=settings.JWT_TOKEN_EXPIRE_MINUTES)
+        payload={"sub": user["username"]}, expiration=timedelta(minutes=settings.JWT_TOKEN_EXPIRE_MINUTES)
     )
     return {"access_token": access_token, "token_type": "bearer"}
