@@ -7,6 +7,8 @@ user_collection = mongodb["users"]
 document_collection = mongodb["documents"]
 
 user_collection.create_index([('username', pymongo.TEXT)], name='username_index', default_language='english')
+document_collection.create_index([('author', pymongo.TEXT), ('title', pymongo.TEXT), ('content', pymongo.TEXT)], name='document_index', default_language='english')
+
 
 try:
     mongo_client.list_database_names()
