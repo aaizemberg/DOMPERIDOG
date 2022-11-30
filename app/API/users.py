@@ -119,7 +119,8 @@ async def register(
     ):
     new_user = {
         "username": user.username,
-        "password": pwd_hasher.hash(user.password)
+        "password": pwd_hasher.hash(user.password),
+        "favourites": []
     }
 
     user = user_collection.find_one({"username": new_user["username"]})

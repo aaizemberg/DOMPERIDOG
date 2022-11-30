@@ -3,7 +3,7 @@ from typing import List
 
 class User(BaseModel):
     username: str
-    favourites: list(str)
+    favourites: List[str]
 
 class UserInDB(User):
     hashed_password: str
