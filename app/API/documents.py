@@ -1,15 +1,14 @@
 from fastapi import APIRouter, status, Depends, HTTPException
-from app.core.schemas.document import Document
+from app.core.schemas.document import Document, PaginatedDocument
 from app.core.models.document_data import DocumentData
 from app.dbs import document_collection, user_collection
 from app.API.users import get_current_user
-from app.core.schemas.user import User
+from app.core.schemas.user import User, PaginatedUser
 from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 from typing import List
 import re
-# from app.core.models.editor_data import EditorData
 
 router = APIRouter()
 
@@ -172,11 +171,12 @@ async def change_document_visibility_by_id(
 @router.get(
     "/search", 
     status_code = status.HTTP_200_OK,
-    response_model = List[Document]
+    response_model = PaginatedDocument
 )
 async def search_document(
         search: str,
-        current_user: User = Depends(get_current_user)
+        page: int = 1,
+        page_size: int = 10,
     ):
 
     search_expr = re.compile(f".*{search}.*", re.I)
@@ -201,13 +201,18 @@ async def search_document(
     if get_documents is None:
         raise not_found_exception
 
-    return get_documents
-
+    return PaginatedDocument(
+        current_page = page,
+        total_pages = document_collection.count_documents(search_request) // page_size + 1,
+        page_size = page_size,
+        documents = [Document(**document) for document in get_documents]
+    )
+#TODO probar paginado
 
 @router.put(
-"/{document_id}/editors", 
-status_code = status.HTTP_200_OK,
-response_model = Document
+    "/{document_id}/editors", 
+    status_code = status.HTTP_200_OK,
+    response_model = Document
 )
 async def change_document_editor_by_username(
         document_id: str,
@@ -253,3 +258,69 @@ async def change_document_editor_by_username(
     else:
         raise editor_is_author_exception
     return return_document
+
+@router.get(
+    "/{document_id}/editors", 
+    status_code = status.HTTP_200_OK,
+    response_model = PaginatedUser
+)
+async def change_document_editor_by_username(
+        document_id: str,
+        editor_username: str,
+        page: int = 1,
+        page_size: int = 10,
+        current_user: User = Depends(get_current_user)
+    ):
+
+    document_not_found_exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Specified document not found"
+    )
+
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not authorized to view the editors of this document"
+    )
+
+    edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if edit_document is None:
+        raise document_not_found_exception
+    if not edit_document["author"] == current_user and not current_user in edit_document["editors"]:
+        raise forbidden_exception  
+        
+    editors = user_collection.find({"username": { "$in":edit_document["editors"]}})
+    return PaginatedUser(
+        current_page = page,
+        total_pages = len(editors) // page_size + 1,
+        page_size = page_size,
+        documents = [User(**user) for user in editors]
+    )
+
+@router.put(
+"/{document_id}/favourite", 
+status_code = status.HTTP_200_OK,
+response_model = Document
+)
+async def change_document_editor_by_username(
+        document_id: str,
+        current_user: User = Depends(get_current_user)
+    ):
+
+    document_not_found_exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Specified document not found"
+    )
+
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not authorized to view this document"
+    )
+
+    fav_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if fav_document is None:
+        raise document_not_found_exception
+    if fav_document["public"] == False and not fav_document["author"] == current_user and not current_user in fav_document["editors"]:
+        raise forbidden_exception  
+        
+    current_user.update({'$push': {'favourites': fav_document["_id"]}})
+    return fav_document

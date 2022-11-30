@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
 from app.core.schemas.user import User
-from app.core.schemas.document import Document
+from app.core.schemas.document import PaginatedDocument, Document
 from app.core.models.user_credentials import UserCredentials
 from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
@@ -71,22 +71,33 @@ async def get_user_by_username(
 
 
 @router.get(
-        "/{username}/favourites", 
-        response_model = List[Document], 
+        "/me/documents", 
+        response_model = PaginatedDocument, 
         status_code = status.HTTP_200_OK
     )
-async def get_user_favourites_by_username(
-        username: str, 
-        current_user: User = Depends(get_current_user)
+async def get_current_user_documents( 
+        current_user: User = Depends(get_current_user),
+        page: int = 1,
+        page_size: int = 10,
+
     ):
-    if(current_user["username"] == username):
-        documents = List(document_collection.find({"author.username": username}).sort("creation_date", -1))
-        return documents
-    else:
-        raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, 
-                detail="You don not have permission to use this resource",
-            )
+    documents = List(document_collection.find({"author.username": current_user["username"]}).sort("creation_date", -1))
+    return PaginatedDocument(
+        current_page = page,
+        total_pages = document_collection.count_documents({"author.username": current_user["username"]}) // page_size + 1,
+        page_size = page_size,
+        documents = [Document(**document) for document in documents]
+    )
+
+# @router.get(
+#     "/me/favourites", 
+#     response_model = PaginatedDocument, 
+#     status_code = status.HTTP_200_OK
+# )
+# async def get_current_user_favourites( 
+#         current_user: User = Depends(get_current_user)
+#     ):
+    # TODO 
 
 @router.post(
         "", 
