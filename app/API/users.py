@@ -84,20 +84,30 @@ async def get_current_user_documents(
     documents = List(document_collection.find({"author.username": current_user["username"]}).sort("creation_date", -1))
     return PaginatedDocument(
         current_page = page,
-        total_pages = document_collection.count_documents({"author.username": current_user["username"]}) // page_size + 1,
+        total_pages = len(documents) // page_size + 1,
         page_size = page_size,
         documents = [Document(**document) for document in documents]
     )
 
-# @router.get(
-#     "/me/favourites", 
-#     response_model = PaginatedDocument, 
-#     status_code = status.HTTP_200_OK
-# )
-# async def get_current_user_favourites( 
-#         current_user: User = Depends(get_current_user)
-#     ):
-    # TODO 
+@router.get(
+    "/me/favourites", 
+    response_model = PaginatedDocument, 
+    status_code = status.HTTP_200_OK
+)
+async def get_current_user_favourites( 
+        current_user: User = Depends(get_current_user),
+        page: int = 1,
+        page_size: int = 10,
+    ):
+    documents = List(document_collection.find({"_id": {"$in": current_user["favourites"]}}).sort("creation_date", -1))
+    return PaginatedDocument(
+        current_page = page,
+        total_pages = len(documents) // page_size + 1,
+        page_size = page_size,
+        documents = [Document(**document) for document in documents]
+    )
+
+     
 
 @router.post(
         "", 
