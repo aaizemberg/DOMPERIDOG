@@ -58,5 +58,11 @@ async def create_document(
     if not edit_document["author"] == current_user and not current_user in edit_document["editors"]:
         raise forbidden_exception
 
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  document.title, "content": document.content} },  return_document = ReturnDocument.AFTER)
+    new_title = document.title
+
+    if document.title == "":
+        new_title = edit_document["title"]
+    
+
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content} },  return_document = ReturnDocument.AFTER)
     return return_document
