@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.settings import settings
-from app.API import login, users
+from app.API import login, users, documents
 
 def get_application():
     app = FastAPI(title=settings.PROJECT_NAME)
@@ -19,5 +19,5 @@ def get_application():
 
 app = get_application()
 app.include_router(login.router, prefix="/login", tags=["login"])
-# app.include_router(documents.router, prefix="/documents", tags=["documents"])
+app.include_router(documents.router, prefix="/documents", tags=["documents"])
 app.include_router(users.router, prefix="/users", tags=["users"])
