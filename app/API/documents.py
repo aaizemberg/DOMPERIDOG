@@ -5,6 +5,8 @@ from app.dbs import document_collection
 from app.API.users import get_current_user
 from app.core.schemas.user import User
 from datetime import datetime
+from bson.objectid import ObjectId
+from pymongo import ReturnDocument
 
 router = APIRouter()
 
@@ -30,11 +32,12 @@ async def create_document(
     return new_document
 
 @router.put(
-        "", 
-        status_code = status.HTTP_201_CREATED,
+        "/{document_id}", 
+        status_code = status.HTTP_200_OK,
         response_model = Document
     )
 async def create_document(
+        document_id: str,
         document: DocumentData,
         current_user: User = Depends(get_current_user)
     ):
@@ -49,11 +52,11 @@ async def create_document(
         detail="You are not authorized to edit this document"
     )
 
-    edit_document = document_collection.find_one({"_id": document.document_id})
+    edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
         raise not_found_exception
-    if not edit_document.author == current_user and not current_user in edit_document.editors:
+    if not edit_document["author"] == current_user and not current_user in edit_document["editors"]:
         raise forbidden_exception
 
-    return_document = document_collection.find_one_and_update("_id": document.document_id, { '$set': { "title" :  document.title, "content": document.content} }, return_document = ReturnDocument.AFTER)
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  document.title, "content": document.content} },  return_document = ReturnDocument.AFTER)
     return return_document
