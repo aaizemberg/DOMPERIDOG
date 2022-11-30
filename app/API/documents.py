@@ -198,7 +198,7 @@ async def search_document(
         detail="No documents match search request"
     )
 
-    get_documents = document_collection.find(search_request)
+    get_documents = List(document_collection.find(search_request).sort("creation_date", -1))
     if get_documents is None:
         raise not_found_exception
 

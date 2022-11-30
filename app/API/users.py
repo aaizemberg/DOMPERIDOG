@@ -80,8 +80,8 @@ async def get_user_favourites_by_username(
         current_user: User = Depends(get_current_user)
     ):
     if(current_user["username"] == username):
-        links = List(document_collection.find({"author.username": username}).sort("creation_date", -1))
-        return links
+        documents = List(document_collection.find({"author.username": username}).sort("creation_date", -1))
+        return documents
     else:
         raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
