@@ -203,7 +203,7 @@ async def search_document(
 
     return PaginatedDocument(
         current_page = page,
-        total_pages = len(get_documents) // page_size + 1,
+        total_pages = document_collection.count_documents(search_request) // page_size + 1,
         page_size = page_size,
         documents = [Document(**document) for document in get_documents]
     )
@@ -291,7 +291,7 @@ async def change_document_editor_by_username(
     editors = user_collection.find({"username": { "$in":edit_document["editors"]}})
     return PaginatedUser(
         current_page = page,
-        total_pages = len(editors) // page_size + 1,
+        total_pages = user_collection.count_documents({"username": { "$in":edit_document["editors"]}}) // page_size + 1,
         page_size = page_size,
         documents = [User(**user) for user in editors]
     )

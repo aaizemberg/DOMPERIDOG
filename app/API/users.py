@@ -84,7 +84,7 @@ async def get_current_user_documents(
     documents = document_collection.find({"author.username": current_user["username"]}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
     return PaginatedDocument(
         current_page = page,
-        total_pages = len(documents) // page_size + 1,
+        total_pages = document_collection.count_documents({"author.username": current_user["username"]}) // page_size + 1,
         page_size = page_size,
         documents = [Document(**document) for document in documents]
     )
@@ -102,7 +102,7 @@ async def get_current_user_favourites(
     documents = document_collection.find({"_id": {"$in": current_user["favourites"]}}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
     return PaginatedDocument(
         current_page = page,
-        total_pages = len(documents) // page_size + 1,
+        total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
         documents = [Document(**document) for document in documents]
     )
