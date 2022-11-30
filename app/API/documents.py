@@ -9,7 +9,7 @@ from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 from typing import List
 import re
-from app.core.models.editor_data import EditorData
+# from app.core.models.editor_data import EditorData
 
 router = APIRouter()
 
@@ -107,7 +107,6 @@ async def delete_document_by_id(
     
     document_collection.delete_one({"_id": delete_document["_id"]})
 
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content} },  return_document = ReturnDocument.AFTER)
     return {}
 
 @router.get(
