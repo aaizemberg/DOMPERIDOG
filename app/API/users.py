@@ -79,7 +79,7 @@ async def get_current_user_profile(
 
 @router.get(
         "/me/documents", 
-        response_model = PaginatedDocument, 
+        response_model = List[Document], 
         status_code = status.HTTP_200_OK
     )
 async def get_current_user_documents( 
@@ -90,12 +90,7 @@ async def get_current_user_documents(
     ):
     get_documents = list(document_collection.find({"author": current_user["username"]}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size))
 
-    return PaginatedDocument(
-        current_page = page,
-        total_pages =  len(get_documents) // page_size + 1,
-        page_size = page_size,
-        documents = get_documents
-    ) #TODO devolver los documentos
+    return get_documents
 
 @router.get(
     "/me/favourites", 

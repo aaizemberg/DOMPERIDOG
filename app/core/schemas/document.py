@@ -1,9 +1,8 @@
 from pydantic import BaseModel, Field as PydanticField
 from datetime import date
-from typing import List
+from typing import List, Dict
 from app.core.models.object_id import PyObjectId
 from bson.objectid import ObjectId
-
 
 class Document(BaseModel):
     title: str
