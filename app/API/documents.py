@@ -210,7 +210,7 @@ async def search_document(
         page_size = page_size,
         documents = [DocumentExt(**document) for document in get_documents]
     )
-#TODO probar paginado
+#TODO NO ANDA
 
 @router.put(
     "/{document_id}/editors", 
