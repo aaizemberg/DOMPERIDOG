@@ -14,7 +14,6 @@ class User(BaseModel):
 
 class UserInDB(User):
     username: str
-    hashed_password: str
     favourites: List[PyObjectId]
     id: PyObjectId = PydanticField(default_factory=PyObjectId, alias="_id")
     class Config:

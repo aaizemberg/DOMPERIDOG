@@ -45,130 +45,6 @@ async def create_document(
     new_document["id"] = _id.inserted_id
     return new_document
 
-@router.put(
-        "/{document_id}", 
-        status_code = status.HTTP_200_OK,
-        response_model = Document
-    )
-async def edit_document_by_id(
-        document_id: str,
-        document: DocumentData,
-        current_user: User = Depends(get_current_user)
-    ):
-
-    not_found_exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Specified document not found"
-    )
-
-    forbidden_exception = HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not authorized to edit this document"
-    )
-
-    edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if edit_document is None:
-        raise not_found_exception
-    if not edit_document["author"] == current_user["username"] and not current_user["username"] in edit_document["editors"]:
-        raise forbidden_exception
-
-    new_title = document.title
-
-    if document.title == "":
-        new_title = edit_document["title"]
-    
-
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content} },  return_document = ReturnDocument.AFTER)
-    return return_document
-
-@router.delete(
-    "/{document_id}", 
-    status_code = status.HTTP_200_OK,
-)
-async def delete_document_by_id(
-        document_id: str,
-        current_user: User = Depends(get_current_user)
-    ):
-
-    not_found_exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Specified document not found"
-    )
-
-    forbidden_exception = HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not authorized to delete this document"
-    )
-
-    delete_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if delete_document is None:
-        raise not_found_exception
-
-    if not delete_document["author"] == current_user["username"]:
-        raise forbidden_exception
-    
-    document_collection.delete_one({"_id": delete_document["_id"]})
-
-    return {}
-
-@router.get(
-        "/{document_id}", 
-        status_code = status.HTTP_200_OK,
-        response_model = Document
-    )
-async def get_document_by_id(
-        document_id: str,
-        current_user: User = Depends(get_current_user)
-    ):
-
-    not_found_exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Specified document not found"
-    )
-
-    forbidden_exception = HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not authorized to view this document"
-    )
-
-    get_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if get_document is None:
-        raise not_found_exception
-    if get_document["public"] == False and not get_document["author"] == current_user["username"] and not current_user["username"] in get_document["editors"]:
-        raise forbidden_exception
-
-    return get_document
-
-@router.put(
-    "/{document_id}/visibility", 
-    status_code = status.HTTP_200_OK,
-    response_model = Document
-)
-async def change_document_visibility_by_id(
-        document_id: str,
-        visibility: VisibilityData,
-        current_user: User = Depends(get_current_user)
-    ):
-
-    not_found_exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Specified document not found"
-    )
-
-    forbidden_exception = HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not authorized to change the visibility of this document"
-    )
-
-    edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if edit_document is None:
-        raise not_found_exception
-    if not edit_document["author"] == current_user["username"]:
-        raise forbidden_exception    
-
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "public" :  visibility.public} },  return_document = ReturnDocument.AFTER)
-    return return_document
-
 
 
 @router.get(
@@ -213,6 +89,143 @@ async def search_document(
         page_size = page_size,
         documents = document_list
     ) #TODO devolver los documentos
+
+@router.get(
+        "/{document_id}", 
+        status_code = status.HTTP_200_OK,
+        response_model = Document
+    )
+async def get_document_by_id(
+        document_id: str,
+        current_user: User = Depends(get_current_user)
+    ):
+
+    not_found_exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Specified document not found"
+    )
+
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not authorized to view this document"
+    )
+
+    get_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if get_document is None:
+        raise not_found_exception
+    if get_document["public"] == False and not get_document["author"] == current_user["username"] and not current_user["username"] in get_document["editors"]:
+        raise forbidden_exception
+
+    return get_document
+
+
+@router.get(
+    "/{document_id}/editors", 
+    status_code = status.HTTP_200_OK,
+    response_model = PaginatedUser
+)
+async def get_document_editors(
+        document_id: str,
+        page: int = 1,
+        page_size: int = 10,
+        current_user: User = Depends(get_current_user)
+    ):
+
+    document_not_found_exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Specified document not found"
+    )
+
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not authorized to view the editors of this document"
+    )
+
+    edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if edit_document is None:
+        raise document_not_found_exception
+    if not edit_document["author"] == current_user["username"] and not current_user["username"] in edit_document["editors"] and edit_document["public"] == False:
+        raise forbidden_exception  
+        
+    return PaginatedUser(
+        current_page = page,
+        total_pages = len(edit_document["editors"]) // page_size + 1,
+        page_size = page_size,
+        users = edit_document["editors"]
+    )
+
+@router.put(
+        "/{document_id}", 
+        status_code = status.HTTP_200_OK,
+        response_model = Document
+    )
+async def edit_document_by_id(
+        document_id: str,
+        document: DocumentData,
+        current_user: User = Depends(get_current_user)
+    ):
+
+    not_found_exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Specified document not found"
+    )
+
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not authorized to edit this document"
+    )
+
+    edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if edit_document is None:
+        raise not_found_exception
+    if not edit_document["author"] == current_user["username"] and not current_user["username"] in edit_document["editors"]:
+        raise forbidden_exception
+
+    new_title = document.title
+
+    if document.title == "":
+        new_title = edit_document["title"]
+    
+
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content} },  return_document = ReturnDocument.AFTER)
+    return return_document
+
+
+@router.put(
+"/{document_id}/favourite", 
+status_code = status.HTTP_200_OK
+)
+async def change_document_editor_by_username(
+        document_id: str,
+        current_user: User = Depends(get_current_user)
+    ):
+
+    document_not_found_exception = HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Specified document not found"
+    )
+
+    forbidden_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You are not authorized to view this document"
+    )
+
+    fav_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if fav_document is None and ObjectId(document_id) in current_user["favourites"]:
+        user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': ObjectId(document_id)}})
+        return {}
+    elif fav_document is None: 
+        raise document_not_found_exception
+    if fav_document["public"] == False and not fav_document["author"] == current_user["username"] and not current_user in fav_document["editors"]:
+        raise forbidden_exception  
+        
+
+    if fav_document["_id"] in current_user["favourites"]:
+        user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': fav_document["_id"]}})
+    else :
+        user_collection.update_one({'username': current_user["username"]},{'$push': {'favourites': fav_document["_id"]}})
+    
+    return {}
 
 @router.put(
     "/{document_id}/editors", 
@@ -264,73 +277,63 @@ async def change_document_editor_by_username(
         raise editor_is_author_exception
     return return_document
 
-@router.get(
-    "/{document_id}/editors", 
+@router.put(
+    "/{document_id}/visibility", 
     status_code = status.HTTP_200_OK,
-    response_model = PaginatedUser
+    response_model = Document
 )
-async def get_document_editors(
+async def change_document_visibility_by_id(
         document_id: str,
-        page: int = 1,
-        page_size: int = 10,
+        visibility: VisibilityData,
         current_user: User = Depends(get_current_user)
     ):
 
-    document_not_found_exception = HTTPException(
+    not_found_exception = HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Specified document not found"
     )
 
     forbidden_exception = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not authorized to view the editors of this document"
+        detail="You are not authorized to change the visibility of this document"
     )
 
     edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
-        raise document_not_found_exception
-    if not edit_document["author"] == current_user["username"] and not current_user["username"] in edit_document["editors"] and edit_document["public"] == False:
-        raise forbidden_exception  
-        
-    return PaginatedUser(
-        current_page = page,
-        total_pages = len(edit_document["editors"]) // page_size + 1,
-        page_size = page_size,
-        users = edit_document["editors"]
-    )
+        raise not_found_exception
+    if not edit_document["author"] == current_user["username"]:
+        raise forbidden_exception    
 
-@router.put(
-"/{document_id}/favourite", 
-status_code = status.HTTP_200_OK
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "public" :  visibility.public} },  return_document = ReturnDocument.AFTER)
+    return return_document
+
+
+@router.delete(
+    "/{document_id}", 
+    status_code = status.HTTP_200_OK,
 )
-async def change_document_editor_by_username(
+async def delete_document_by_id(
         document_id: str,
         current_user: User = Depends(get_current_user)
     ):
 
-    document_not_found_exception = HTTPException(
+    not_found_exception = HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Specified document not found"
     )
 
     forbidden_exception = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="You are not authorized to view this document"
+        detail="You are not authorized to delete this document"
     )
 
-    fav_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if fav_document is None and ObjectId(document_id) in current_user["favourites"]:
-        user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': ObjectId(document_id)}})
-        return {}
-    elif fav_document is None: 
-        raise document_not_found_exception
-    if fav_document["public"] == False and not fav_document["author"] == current_user["username"] and not current_user in fav_document["editors"]:
-        raise forbidden_exception  
-        
+    delete_document = document_collection.find_one({"_id": ObjectId(document_id)})
+    if delete_document is None:
+        raise not_found_exception
 
-    if fav_document["_id"] in current_user["favourites"]:
-        user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': fav_document["_id"]}})
-    else :
-        user_collection.update_one({'username': current_user["username"]},{'$push': {'favourites': fav_document["_id"]}})
+    if not delete_document["author"] == current_user["username"]:
+        raise forbidden_exception
     
+    document_collection.delete_one({"_id": delete_document["_id"]})
+
     return {}
