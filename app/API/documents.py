@@ -289,7 +289,7 @@ async def get_document_editors(
         
     return PaginatedUser(
         current_page = page,
-        total_pages = 0 // page_size + 1,
+        total_pages = len(edit_document["editors"]) // page_size + 1,
         page_size = page_size,
         users = [User(**user) for user in edit_document["editors"]]
     )
