@@ -48,7 +48,7 @@ async def create_document(
 @router.put(
         "/{document_id}", 
         status_code = status.HTTP_200_OK,
-        response_model = DocumentExt
+        response_model = Document
     )
 async def edit_document_by_id(
         document_id: str,
@@ -114,7 +114,7 @@ async def delete_document_by_id(
 @router.get(
         "/{document_id}", 
         status_code = status.HTTP_200_OK,
-        response_model = Document
+        response_model = DocumentExt
     )
 async def get_document_by_id(
         document_id: str,
