@@ -29,6 +29,9 @@ async def create_document(
             detail="Title cannot be empty",
         )
 
+    if document.title == "":
+        raise bad_request_exception
+
     new_document = {
         "title": document.title,
         "content": document.content,
@@ -38,9 +41,6 @@ async def create_document(
         "creation_date": datetime.now()
     }
 
-    if document.title == "":
-        raise bad_request_exception
-        
     document_collection.insert_one(new_document)
     return new_document
 

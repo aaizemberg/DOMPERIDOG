@@ -6,8 +6,8 @@ from typing import List
 class Document(BaseModel):
     title: str
     content: str
-    author: User
-    editors: List[User]
+    author: str
+    editors: List[str]
     public: bool
     creation_date: date
 
