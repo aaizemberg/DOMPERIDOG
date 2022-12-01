@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
 from app.core.schemas.user import User
-from app.core.schemas.document import PaginatedDocument, PaginatedDocumentFav
+from app.core.schemas.document import PaginatedDocument, PaginatedDocumentFav, Document
 from app.core.models.user_credentials import UserCredentials
 from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
@@ -86,7 +86,7 @@ async def get_current_user_documents(
         current_page = page,
         total_pages = document_collection.count_documents({"username": current_user["username"]}) // page_size + 1,
         page_size = page_size,
-        documents = get_documents
+        documents = [Document(**doc) for doc in get_documents]
     )
 
 @router.get(
@@ -99,12 +99,12 @@ async def get_current_user_favourites(
         page: int = 1,
         page_size: int = 10,
     ):
-    documents = document_collection.find({"_id": {"$in": current_user["favourites"]}}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    get_documents = document_collection.find({"_id": {"$in": current_user["favourites"]}}, {"_id": 1}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
     return PaginatedDocumentFav(
         current_page = page,
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
-        documents = [str(**document) for document in documents]
+        documents = get_documents
     )#TODO NO ANDA
 
      

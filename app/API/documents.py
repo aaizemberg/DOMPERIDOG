@@ -208,7 +208,7 @@ async def search_document(
         current_page = page,
         total_pages = document_collection.count_documents(search_request) // page_size + 1,
         page_size = page_size,
-        documents = get_documents
+        documents = [Document(**doc) for doc in get_documents]
     )
 #TODO NO ANDA
 
