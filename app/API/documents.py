@@ -294,7 +294,7 @@ async def get_document_editors(
         current_page = page,
         total_pages = len(edit_document["editors"]) // page_size + 1,
         page_size = page_size,
-        users = [str(**user) for user in edit_document["editors"]]
+        users = edit_document["editors"]
     )
 
 @router.put(

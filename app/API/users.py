@@ -81,12 +81,12 @@ async def get_current_user_documents(
         page_size: int = 10,
 
     ):
-    documents = document_collection.find({"author.username": current_user["username"]}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    get_documents = document_collection.find({"author": current_user["username"]}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
     return PaginatedDocument(
         current_page = page,
-        total_pages = document_collection.count_documents({"author.username": current_user["username"]}) // page_size + 1,
+        total_pages = document_collection.count_documents({"username": current_user["username"]}) // page_size + 1,
         page_size = page_size,
-        documents = [DocumentExt(**document) for document in documents]
+        documents = [DocumentExt(**document) for document in get_documents]
     )
 
 @router.get(
@@ -104,7 +104,7 @@ async def get_current_user_favourites(
         current_page = page,
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
-        documents = [str(**document) for document in documents]
+        documents = [str(**document["_id"]) for document in documents]
     )
 
      
