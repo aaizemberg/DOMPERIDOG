@@ -42,7 +42,7 @@ async def create_document(
     }
 
     _id = document_collection.insert_one(new_document)
-    new_document["id"] = _id.inserted_id.__str__()
+    new_document["id"] = _id.inserted_id
     return new_document
 
 @router.put(
