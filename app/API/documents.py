@@ -71,17 +71,10 @@ async def search_document(
         ]
     }
 
-    not_found_exception = HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="No documents match search request"
-    )
-
     get_documents = document_collection.find(search_request).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
     document_list = []
     for doc in get_documents:
         document_list.append(doc)
-    if get_documents is None:
-        raise not_found_exception
 
     return PaginatedDocument(
         current_page = page,
