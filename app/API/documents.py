@@ -317,10 +317,17 @@ async def change_document_editor_by_username(
     )
 
     fav_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if fav_document is None:
+    if fav_document is None and document_id in current_user["favourites"]:
+        user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': fav_document["_id"]}})
+    elif fav_document is None:
         raise document_not_found_exception
     if fav_document["public"] == False and not fav_document["author"] == current_user and not current_user in fav_document["editors"]:
         raise forbidden_exception  
         
-    user_collection.update_one({'username': current_user["username"]},{'$push': {'favourites': fav_document}})
+
+    if fav_document["_id"] in current_user["favourites"]:
+        user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': fav_document["_id"]}})
+    else :
+        user_collection.update_one({'username': current_user["username"]},{'$push': {'favourites': fav_document["_id"]}})
+    
     return fav_document
