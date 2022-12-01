@@ -322,5 +322,5 @@ async def change_document_editor_by_username(
     if fav_document["public"] == False and not fav_document["author"] == current_user and not current_user in fav_document["editors"]:
         raise forbidden_exception  
         
-    current_user.update({'$push': {'favourites': fav_document}})
+    user_collection.update_one({'username': current_user["username"]},{'$push': {'favourites': fav_document}})
     return fav_document
