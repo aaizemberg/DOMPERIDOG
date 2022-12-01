@@ -8,6 +8,7 @@ from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import List
+from bson.objectid import ObjectId
 
 pwd_hasher = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -104,7 +105,7 @@ async def get_current_user_favourites(
         current_page = page,
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
-        documents = get_documents
+        documents = [ObjectId(id) for id in get_documents]
     )#TODO NO ANDA
 
      
