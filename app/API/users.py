@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
-from app.core.schemas.user import User
-from app.core.schemas.document import PaginatedDocument, Document, PaginatedDocumentFav
+from app.core.schemas.user import User, UserExt
+from app.core.schemas.document import PaginatedDocument, DocumentExt, PaginatedDocumentFav
 from app.core.models.user_credentials import UserCredentials
 from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
@@ -43,17 +43,17 @@ async def get_current_user(
 
 @router.get(
         "/me", 
-        response_model = User, 
+        response_model = UserExt, 
         status_code = status.HTTP_200_OK
     )
 async def get_current_user_profile(
         current_user: User = Depends(get_current_user)
     ):
-    return current_user
+    return UserExt(**current_user)
 
 @router.get(
         "/{username}", 
-        response_model = User, 
+        response_model = UserExt, 
         status_code = status.HTTP_200_OK
     )
 async def get_user_by_username(
@@ -61,7 +61,7 @@ async def get_user_by_username(
         current_user: User = Depends(get_current_user)
     ):
     if(current_user["username"] == username):
-        return current_user
+        return UserExt(**current_user)
     else:
         
         raise HTTPException(
@@ -86,7 +86,7 @@ async def get_current_user_documents(
         current_page = page,
         total_pages = document_collection.count_documents({"author.username": current_user["username"]}) // page_size + 1,
         page_size = page_size,
-        documents = [Document(**document) for document in documents]
+        documents = [DocumentExt(**document) for document in documents]
     )
 
 @router.get(
@@ -112,7 +112,7 @@ async def get_current_user_favourites(
 @router.post(
         "", 
         status_code = status.HTTP_201_CREATED,
-        response_model = User
+        response_model = UserExt
     )
 async def register(
         user: UserCredentials
@@ -133,7 +133,7 @@ async def register(
 
     _id = user_collection.insert_one(new_user)
     new_user["id"] = _id.inserted_id
-    return new_user
+    return UserExt(**new_user)
 	    
 
 @router.delete(

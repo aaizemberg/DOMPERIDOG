@@ -17,7 +17,7 @@ router = APIRouter()
 @router.post(
         "", 
         status_code = status.HTTP_201_CREATED,
-        response_model = Document
+        response_model = DocumentExt
     )
 async def create_document(
         document: DocumentData,
@@ -43,12 +43,12 @@ async def create_document(
 
     _id = document_collection.insert_one(new_document)
     new_document["id"] = _id.inserted_id
-    return new_document
+    return DocumentExt(**new_document)
 
 @router.put(
         "/{document_id}", 
         status_code = status.HTTP_200_OK,
-        response_model = Document
+        response_model = DocumentExt
     )
 async def edit_document_by_id(
         document_id: str,
@@ -79,7 +79,7 @@ async def edit_document_by_id(
     
 
     return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content} },  return_document = ReturnDocument.AFTER)
-    return return_document
+    return DocumentExt(**return_document)
 
 @router.delete(
     "/{document_id}", 
@@ -142,7 +142,7 @@ async def get_document_by_id(
 @router.put(
     "/{document_id}/visibility", 
     status_code = status.HTTP_200_OK,
-    response_model = Document
+    response_model = DocumentExt
 )
 async def change_document_visibility_by_id(
         document_id: str,
@@ -167,7 +167,7 @@ async def change_document_visibility_by_id(
         raise forbidden_exception    
 
     return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "public" :  visibility.public} },  return_document = ReturnDocument.AFTER)
-    return return_document
+    return DocumentExt(**return_document)
 
 
 
@@ -208,14 +208,14 @@ async def search_document(
         current_page = page,
         total_pages = document_collection.count_documents(search_request) // page_size + 1,
         page_size = page_size,
-        documents = [Document(**document) for document in get_documents]
+        documents = [DocumentExt(**document) for document in get_documents]
     )
 #TODO probar paginado
 
 @router.put(
     "/{document_id}/editors", 
     status_code = status.HTTP_200_OK,
-    response_model = Document
+    response_model = DocumentExt
 )
 async def change_document_editor_by_username(
         document_id: str,
@@ -260,7 +260,7 @@ async def change_document_editor_by_username(
         return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$push': { "editors" :  subject_editor["username"]} },  return_document = ReturnDocument.AFTER)
     else:
         raise editor_is_author_exception
-    return return_document
+    return DocumentExt(**return_document)
 
 @router.get(
     "/{document_id}/editors", 
