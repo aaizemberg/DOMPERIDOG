@@ -42,6 +42,7 @@ async def create_document(
     }
 
     document_collection.insert_one(new_document)
+    
     return new_document
 
 @router.put(
@@ -298,8 +299,7 @@ async def get_document_editors(
 
 @router.put(
 "/{document_id}/favourite", 
-status_code = status.HTTP_200_OK,
-response_model = Document
+status_code = status.HTTP_200_OK
 )
 async def change_document_editor_by_username(
         document_id: str,
@@ -319,7 +319,8 @@ async def change_document_editor_by_username(
     fav_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if fav_document is None and ObjectId(document_id) in current_user["favourites"]:
         user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': ObjectId(document_id)}})
-    elif fav_document is None:
+        return {}
+    elif fav_document is None: 
         raise document_not_found_exception
     if fav_document["public"] == False and not fav_document["author"] == current_user["username"] and not current_user in fav_document["editors"]:
         raise forbidden_exception  
@@ -330,4 +331,4 @@ async def change_document_editor_by_username(
     else :
         user_collection.update_one({'username': current_user["username"]},{'$push': {'favourites': fav_document["_id"]}})
     
-    return fav_document
+    return {}
