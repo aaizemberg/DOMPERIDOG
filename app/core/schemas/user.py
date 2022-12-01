@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import List
-from core.models.object_id import PyObjectId
+from app.core.models.object_id import PyObjectId
 
 class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
