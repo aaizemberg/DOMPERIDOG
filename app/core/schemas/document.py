@@ -4,6 +4,7 @@ from app.core.schemas.user import User
 from typing import List
 
 class Document(BaseModel):
+    id:str
     title: str
     content: str
     author: str
