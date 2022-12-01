@@ -177,7 +177,7 @@ async def change_document_visibility_by_id(
     response_model = PaginatedDocument
 )
 async def search_document(
-        search: str,
+        search: str = "",
         page: int = 1,
         page_size: int = 10,
     ):
@@ -256,9 +256,9 @@ async def change_document_editor_by_username(
     if subject_editor is None:
         raise user_not_found_exception
         
-    if subject_editor in edit_document["editors"]:
+    if subject_editor["username"] in edit_document["editors"]:
         return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$pull': { "editors" :  subject_editor["username"]} },  return_document = ReturnDocument.AFTER)
-    elif not subject_editor == edit_document["author"]:
+    elif not subject_editor["username"] == edit_document["author"]:
         return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$push': { "editors" :  subject_editor["username"]} },  return_document = ReturnDocument.AFTER)
     else:
         raise editor_is_author_exception

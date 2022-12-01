@@ -11,7 +11,7 @@ from typing import List
 from bson.objectid import ObjectId
 
 pwd_hasher = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 router = APIRouter()
 
 async def get_current_user(
