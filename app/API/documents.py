@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends, HTTPException
-from app.core.schemas.document import Document, PaginatedDocument
+from app.core.schemas.document import Document, PaginatedDocumentFav
 from app.core.models.document_data import DocumentData
 from app.core.models.user_data import UserData
 from app.dbs import document_collection, user_collection
@@ -174,7 +174,7 @@ async def change_document_visibility_by_id(
 @router.get(
     "/search", 
     status_code = status.HTTP_200_OK,
-    response_model = PaginatedDocument
+    response_model = PaginatedDocumentFav
 )
 async def search_document(
         search: str,
@@ -200,17 +200,16 @@ async def search_document(
         detail="No documents match search request"
     )
 
-    get_documents = document_collection.find(search_request).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    get_documents = document_collection.find(search_request, {"_id": 1}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
     if get_documents is None:
         raise not_found_exception
 
-    return PaginatedDocument(
+    return PaginatedDocumentFav(
         current_page = page,
         total_pages = document_collection.count_documents(search_request) // page_size + 1,
         page_size = page_size,
-        documents = [Document(**doc) for doc in get_documents]
+        documents = [str(id) for id in get_documents]
     )
-#TODO NO ANDA
 
 @router.put(
     "/{document_id}/editors", 
