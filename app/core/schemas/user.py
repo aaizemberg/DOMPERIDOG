@@ -1,7 +1,9 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field as PydanticField
 from typing import List
+from core.models.object_id import PyObjectId
 
 class User(BaseModel):
+    id: PyObjectId = PydanticField(default_factory=PyObjectId, alias="_id")
     username: str
     favourites: List[str]
 

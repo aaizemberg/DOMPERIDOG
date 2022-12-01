@@ -131,7 +131,8 @@ async def register(
                 detail="Specified username already exists"
             )
 
-    user_collection.insert_one(new_user)
+    _id = user_collection.insert_one(new_user)
+    new_user["id"] = _id.inserted_id.__str__()
     return new_user
 	    
 

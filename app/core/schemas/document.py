@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field as PydanticField
 from datetime import date
-from app.core.schemas.user import User
 from typing import List
+from core.models.object_id import PyObjectId
 
 class Document(BaseModel):
-    id:str
+    id: PyObjectId = PydanticField(default_factory=PyObjectId, alias="_id")
     title: str
     content: str
     author: str
