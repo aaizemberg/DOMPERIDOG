@@ -3,6 +3,8 @@ from datetime import date
 from typing import List, Dict
 from app.core.models.object_id import PyObjectId
 from bson.objectid import ObjectId
+import pydantic
+pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
 
 class Document(BaseModel):
     title: str
@@ -22,9 +24,3 @@ class PaginatedDocument(BaseModel):
     total_pages: int
     page_size: int
     documents: List[Document]
-
-class PaginatedDocumentFav(BaseModel):
-    current_page: int
-    total_pages: int
-    page_size: int
-    documents: List[str]

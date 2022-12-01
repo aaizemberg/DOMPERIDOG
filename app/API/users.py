@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
 from app.core.schemas.user import User, UserInDB
-from app.core.schemas.document import PaginatedDocument, PaginatedDocumentFav, Document
+from app.core.schemas.document import PaginatedDocument, Document
 from app.core.models.user_credentials import UserCredentials
 from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
@@ -79,7 +79,7 @@ async def get_current_user_profile(
 
 @router.get(
         "/me/documents", 
-        response_model = List[Document], 
+        response_model = PaginatedDocument, 
         status_code = status.HTTP_200_OK
     )
 async def get_current_user_documents( 
@@ -89,12 +89,18 @@ async def get_current_user_documents(
 
     ):
     get_documents = list(document_collection.find({"author": current_user["username"]}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size))
+    documents = [Document(**document) for document in get_documents]
 
-    return get_documents
+    return PaginatedDocument(
+        current_page = page,
+        total_pages =  document_collection.count_documents({"author": current_user["username"]}) // page_size + 1,
+        page_size = page_size,
+        documents = documents
+    )
 
 @router.get(
     "/me/favourites", 
-    response_model = PaginatedDocumentFav, 
+    response_model = PaginatedDocument, 
     status_code = status.HTTP_200_OK
 )
 async def get_current_user_favourites( 
@@ -102,12 +108,14 @@ async def get_current_user_favourites(
         page: int = 1,
         page_size: int = 10,
     ):
-    get_documents = document_collection.find({"_id": {"$in": current_user["favourites"]}}, {"_id": 1}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
-    return PaginatedDocumentFav(
+    get_documents = document_collection.find({"_id": {"$in": current_user["favourites"]}}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    documents = [Document(**document) for document in get_documents]
+    
+    return PaginatedDocument(
         current_page = page,
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
-        documents = [str(id) for id in get_documents]
+        documents = documents
     ) #TODO devolver los documentos
 
 
