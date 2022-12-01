@@ -92,7 +92,7 @@ async def get_current_user_documents(
 
     return PaginatedDocument(
         current_page = page,
-        total_pages =  document_collection.count_documents({"author": current_user["username"]}) // page_size + 1,
+        total_pages =  len(list(get_documents.clone())) // page_size + 1,
         page_size = page_size,
         documents = list(get_documents)
     ) #TODO devolver los documentos
