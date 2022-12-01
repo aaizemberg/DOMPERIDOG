@@ -77,15 +77,16 @@ async def search_document(
     )
 
     get_documents = document_collection.find(search_request).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    if get_documents is None:
+        raise not_found_exception
+    
     document_list = []
     for doc in get_documents:
         document_list.append(doc)
-    if get_documents is None:
-        raise not_found_exception
 
     return PaginatedDocument(
         current_page = page,
-        total_pages = document_list.count() // page_size + 1,
+        total_pages = len(document_list) // page_size + 1,
         page_size = page_size,
         documents = document_list
     ) #TODO devolver los documentos
