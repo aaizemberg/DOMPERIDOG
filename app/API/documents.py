@@ -1,9 +1,11 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from app.core.schemas.document import Document, PaginatedDocument
 from app.core.models.document_data import DocumentData
+from app.core.models.user_data import UserData
 from app.dbs import document_collection, user_collection
 from app.API.users import get_current_user
 from app.core.schemas.user import User, PaginatedUser
+from app.core.models.visibility_data import VisibilityData
 from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
@@ -143,7 +145,7 @@ async def get_document_by_id(
 )
 async def change_document_visibility_by_id(
         document_id: str,
-        visibility: bool,
+        visibility: VisibilityData,
         current_user: User = Depends(get_current_user)
     ):
 
@@ -163,7 +165,7 @@ async def change_document_visibility_by_id(
     if not edit_document["author"] == current_user:
         raise forbidden_exception    
 
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "public" :  visibility} },  return_document = ReturnDocument.AFTER)
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "public" :  visibility.public} },  return_document = ReturnDocument.AFTER)
     return return_document
 
 
@@ -216,7 +218,7 @@ async def search_document(
 )
 async def change_document_editor_by_username(
         document_id: str,
-        editor_username: str,
+        editor: UserData,
         current_user: User = Depends(get_current_user)
     ):
 
@@ -247,7 +249,7 @@ async def change_document_editor_by_username(
     if not edit_document["author"] == current_user:
         raise forbidden_exception  
 
-    subject_editor = user_collection.find_one({"username": editor_username})
+    subject_editor = user_collection.find_one({"username": editor.username})
     if subject_editor is None:
         raise user_not_found_exception
         
@@ -320,5 +322,5 @@ async def change_document_editor_by_username(
     if fav_document["public"] == False and not fav_document["author"] == current_user and not current_user in fav_document["editors"]:
         raise forbidden_exception  
         
-    current_user.update({'$push': {'favourites': fav_document["_id"]}})
+    current_user.update({'$push': {'favourites': fav_document}})
     return fav_document
