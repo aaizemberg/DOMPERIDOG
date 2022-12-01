@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
 from app.core.schemas.user import User
-from app.core.schemas.document import PaginatedDocument, Document
+from app.core.schemas.document import PaginatedDocument, Document, PaginatedDocumentFav
 from app.core.models.user_credentials import UserCredentials
 from app.dbs import user_collection, document_collection
 from jose import JWTError, jwt
@@ -91,7 +91,7 @@ async def get_current_user_documents(
 
 @router.get(
     "/me/favourites", 
-    response_model = PaginatedDocument, 
+    response_model = PaginatedDocumentFav, 
     status_code = status.HTTP_200_OK
 )
 async def get_current_user_favourites( 
@@ -100,11 +100,11 @@ async def get_current_user_favourites(
         page_size: int = 10,
     ):
     documents = document_collection.find({"_id": {"$in": current_user["favourites"]}}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
-    return PaginatedDocument(
+    return PaginatedDocumentFav(
         current_page = page,
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
-        documents = [Document(**document) for document in documents]
+        documents = [str(**document) for document in documents]
     )
 
      

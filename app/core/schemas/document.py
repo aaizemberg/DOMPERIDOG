@@ -16,3 +16,9 @@ class PaginatedDocument(BaseModel):
     total_pages: int
     page_size: int
     documents: List[Document]
+
+class PaginatedDocumentFav(BaseModel):
+    current_page: int
+    total_pages: int
+    page_size: int
+    documents: List[str]

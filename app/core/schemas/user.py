@@ -12,4 +12,4 @@ class PaginatedUser(BaseModel):
     current_page: int
     total_pages: int
     page_size: int
-    users: List[User]
+    users: List[str]

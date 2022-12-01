@@ -41,8 +41,8 @@ async def create_document(
         "creation_date": datetime.now()
     }
 
-    document_collection.insert_one(new_document)
-    
+    _id = document_collection.insert_one(new_document)
+    new_document["_id"]: _id
     return new_document
 
 @router.put(
@@ -294,7 +294,7 @@ async def get_document_editors(
         current_page = page,
         total_pages = len(edit_document["editors"]) // page_size + 1,
         page_size = page_size,
-        users = [User(**user) for user in edit_document["editors"]]
+        users = [str(**user) for user in edit_document["editors"]]
     )
 
 @router.put(
