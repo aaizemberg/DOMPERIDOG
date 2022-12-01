@@ -292,7 +292,7 @@ async def get_document_editors(
         current_page = page,
         total_pages = user_collection.count_documents({"username": { "$in":edit_document["editors"]}}) // page_size + 1,
         page_size = page_size,
-        documents = [User(**user) for user in editors]
+        users = [User(**user) for user in editors]
     )
 
 @router.put(
