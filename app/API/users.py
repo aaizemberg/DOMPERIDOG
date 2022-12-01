@@ -73,7 +73,7 @@ async def get_user_by_username(
 
 @router.get(
         "/me/documents", 
-        response_model = PaginatedDocument, 
+        response_model = PaginatedDocumentFav, 
         status_code = status.HTTP_200_OK
     )
 async def get_current_user_documents( 
@@ -83,7 +83,7 @@ async def get_current_user_documents(
 
     ):
     get_documents = document_collection.find({"author": current_user["username"]}, {"_id": 1}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
-    return PaginatedDocument(
+    return PaginatedDocumentFav(
         current_page = page,
         total_pages = document_collection.count_documents({"username": current_user["username"]}) // page_size + 1,
         page_size = page_size,
