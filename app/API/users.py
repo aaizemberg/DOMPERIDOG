@@ -105,8 +105,8 @@ async def get_current_user_favourites(
         current_page = page,
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
-        documents = [ObjectId(id) for id in get_documents]
-    )#TODO NO ANDA
+        documents = [str(id) for id in get_documents]
+    )
 
      
 
