@@ -264,9 +264,8 @@ async def change_document_editor_by_username(
     status_code = status.HTTP_200_OK,
     response_model = PaginatedUser
 )
-async def change_document_editor_by_username(
+async def get_document_editors(
         document_id: str,
-        editor_username: str,
         page: int = 1,
         page_size: int = 10,
         current_user: User = Depends(get_current_user)
