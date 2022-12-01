@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends, HTTPException
-from app.core.schemas.document import Document, PaginatedDocument
+from app.core.schemas.document import Document, PaginatedDocument, DocumentExt
 from app.core.models.document_data import DocumentData
 from app.core.models.user_data import UserData
 from app.dbs import document_collection, user_collection
@@ -48,7 +48,7 @@ async def create_document(
 @router.put(
         "/{document_id}", 
         status_code = status.HTTP_200_OK,
-        response_model = Document
+        response_model = DocumentExt
     )
 async def edit_document_by_id(
         document_id: str,
@@ -137,7 +137,7 @@ async def get_document_by_id(
     if get_document["public"] == False and not get_document["author"] == current_user["username"] and not current_user["username"] in get_document["editors"]:
         raise forbidden_exception
 
-    return get_document
+    return DocumentExt(**get_document)
 
 @router.put(
     "/{document_id}/visibility", 

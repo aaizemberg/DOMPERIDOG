@@ -1,4 +1,3 @@
-from pydantic import BaseModel, Field as PydanticField
 from bson import ObjectId
 
 class PyObjectId(ObjectId):
