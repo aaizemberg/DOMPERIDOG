@@ -212,7 +212,7 @@ async def search_document(
         total_pages = document_list.count() // page_size + 1,
         page_size = page_size,
         documents = document_list
-    )
+    ) #TODO devolver los documentos
 
 @router.put(
     "/{document_id}/editors", 

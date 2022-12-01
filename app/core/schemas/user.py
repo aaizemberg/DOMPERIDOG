@@ -13,7 +13,14 @@ class User(BaseModel):
         json_encoders = {ObjectId: str}
 
 class UserInDB(User):
+    username: str
     hashed_password: str
+    favourites: List[ObjectId]
+    id: PyObjectId = PydanticField(default_factory=PyObjectId, alias="_id")
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 class PaginatedUser(BaseModel):
     current_page: int

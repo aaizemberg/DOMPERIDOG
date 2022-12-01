@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.settings import settings
-from app.core.schemas.user import User
+from app.core.schemas.user import User, UserInDB
 from app.core.schemas.document import PaginatedDocument, PaginatedDocumentFav, Document
 from app.core.models.user_credentials import UserCredentials
 from app.dbs import user_collection, document_collection
@@ -39,12 +39,11 @@ async def get_current_user(
     user = user_collection.find_one({"username": username})
     if user is None:
         raise bad_credentials_exception
-
     return user
 
 @router.get(
         "/me", 
-        response_model = User, 
+        response_model = UserInDB, 
         status_code = status.HTTP_200_OK
     )
 async def get_current_user_profile(
@@ -54,7 +53,7 @@ async def get_current_user_profile(
 
 @router.get(
         "/{username}", 
-        response_model = User, 
+        response_model = UserInDB, 
         status_code = status.HTTP_200_OK
     )
 async def get_user_by_username(
@@ -68,7 +67,8 @@ async def get_user_by_username(
         raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN, 
                 detail="You don not have permission to use this resource",
-                )
+                )#TODO VER QUE HACER CON ESTE METODO SI VUELA O LO DEJAMOS, LO MISMO CON GET A /USERS
+                #TODO CON PAGINACION EL GET /USERS
 
 
 @router.get(
@@ -88,7 +88,7 @@ async def get_current_user_documents(
         total_pages = document_collection.count_documents({"username": current_user["username"]}) // page_size + 1,
         page_size = page_size,
         documents = [str(id) for id in get_documents]
-    )
+    ) #TODO devolver los documentos
 
 @router.get(
     "/me/favourites", 
@@ -106,7 +106,7 @@ async def get_current_user_favourites(
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
         documents = [str(id) for id in get_documents]
-    )
+    ) #TODO devolver los documentos
 
      
 
