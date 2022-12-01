@@ -317,7 +317,7 @@ async def change_document_editor_by_username(
     )
 
     fav_document = document_collection.find_one({"_id": ObjectId(document_id)})
-    if fav_document is None and document_id in current_user["favourites"]:
+    if fav_document is None and ObjectId(document_id) in current_user["favourites"]:
         user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': fav_document["_id"]}})
     elif fav_document is None:
         raise document_not_found_exception
