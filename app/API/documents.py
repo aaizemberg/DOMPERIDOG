@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends, HTTPException
-from app.core.schemas.document import Document, PaginatedDocumentFav
+from app.core.schemas.document import Document, PaginatedDocument
 from app.core.models.document_data import DocumentData
 from app.core.models.user_data import UserData
 from app.dbs import document_collection, user_collection
@@ -174,7 +174,7 @@ async def change_document_visibility_by_id(
 @router.get(
     "/search", 
     status_code = status.HTTP_200_OK,
-    response_model = PaginatedDocumentFav
+    response_model = PaginatedDocument
 )
 async def search_document(
         search: str,
@@ -200,15 +200,18 @@ async def search_document(
         detail="No documents match search request"
     )
 
-    get_documents = document_collection.find(search_request, {"_id": 1}).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    get_documents = document_collection.find(search_request).sort("creation_date", -1).skip((page - 1) * page_size).limit(page_size)
+    document_list = []
+    for doc in get_documents:
+        document_list.append(doc)
     if get_documents is None:
         raise not_found_exception
 
-    return PaginatedDocumentFav(
+    return PaginatedDocument(
         current_page = page,
-        total_pages = document_collection.count_documents(search_request) // page_size + 1,
+        total_pages = document_list.count() // page_size + 1,
         page_size = page_size,
-        documents = [str(id) for id in get_documents]
+        documents = document_list
     )
 
 @router.put(
