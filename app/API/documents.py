@@ -284,15 +284,14 @@ async def get_document_editors(
     edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
         raise document_not_found_exception
-    if not edit_document["author"] == current_user and not current_user in edit_document["editors"]:
+    if not edit_document["author"] == current_user and not current_user in edit_document["editors"] and edit_document["public"] == False:
         raise forbidden_exception  
         
-    editors = user_collection.find({"username": { "$in":edit_document["editors"]}})
     return PaginatedUser(
         current_page = page,
-        total_pages = user_collection.count_documents({"username": { "$in":edit_document["editors"]}}) // page_size + 1,
+        total_pages = 0 // page_size + 1,
         page_size = page_size,
-        users = [User(**user) for user in editors]
+        users = [User(**user) for user in edit_document["editors"]]
     )
 
 @router.put(
