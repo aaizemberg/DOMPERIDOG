@@ -32,7 +32,7 @@ async def create_document(
     new_document = {
         "title": document.title,
         "content": document.content,
-        "author": current_user,
+        "author": current_user["username"],
         "editors": [],
         "public": True,
         "creation_date": datetime.now()
@@ -68,7 +68,7 @@ async def edit_document_by_id(
     edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
         raise not_found_exception
-    if not edit_document["author"] == current_user and not current_user in edit_document["editors"]:
+    if not edit_document["author"] == current_user["username"] and not current_user["username"] in edit_document["editors"]:
         raise forbidden_exception
 
     new_title = document.title
@@ -103,7 +103,7 @@ async def delete_document_by_id(
     if delete_document is None:
         raise not_found_exception
 
-    if not delete_document["author"] == current_user:
+    if not delete_document["author"] == current_user["username"]:
         raise forbidden_exception
     
     document_collection.delete_one({"_id": delete_document["_id"]})
@@ -133,7 +133,7 @@ async def get_document_by_id(
     get_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if get_document is None:
         raise not_found_exception
-    if get_document["public"] == False and not get_document["author"] == current_user and not current_user in get_document["editors"]:
+    if get_document["public"] == False and not get_document["author"] == current_user["username"] and not current_user["username"] in get_document["editors"]:
         raise forbidden_exception
 
     return get_document
@@ -162,7 +162,7 @@ async def change_document_visibility_by_id(
     edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
         raise not_found_exception
-    if not edit_document["author"] == current_user:
+    if not edit_document["author"] == current_user["username"]:
         raise forbidden_exception    
 
     return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "public" :  visibility.public} },  return_document = ReturnDocument.AFTER)
@@ -246,7 +246,7 @@ async def change_document_editor_by_username(
     edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
         raise document_not_found_exception
-    if not edit_document["author"] == current_user:
+    if not edit_document["author"] == current_user["username"]:
         raise forbidden_exception  
 
     subject_editor = user_collection.find_one({"username": editor.username})
@@ -254,9 +254,9 @@ async def change_document_editor_by_username(
         raise user_not_found_exception
         
     if subject_editor in edit_document["editors"]:
-        return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$pull': { "editors" :  subject_editor} },  return_document = ReturnDocument.AFTER)
+        return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$pull': { "editors" :  subject_editor["username"]} },  return_document = ReturnDocument.AFTER)
     elif not subject_editor == edit_document["author"]:
-        return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$push': { "editors" :  subject_editor} },  return_document = ReturnDocument.AFTER)
+        return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$push': { "editors" :  subject_editor["username"]} },  return_document = ReturnDocument.AFTER)
     else:
         raise editor_is_author_exception
     return return_document
@@ -286,7 +286,7 @@ async def get_document_editors(
     edit_document = document_collection.find_one({"_id": ObjectId(document_id)})
     if edit_document is None:
         raise document_not_found_exception
-    if not edit_document["author"] == current_user and not current_user in edit_document["editors"] and edit_document["public"] == False:
+    if not edit_document["author"] == current_user["username"] and not current_user["username"] in edit_document["editors"] and edit_document["public"] == False:
         raise forbidden_exception  
         
     return PaginatedUser(
@@ -321,7 +321,7 @@ async def change_document_editor_by_username(
         user_collection.update_one({'username': current_user["username"]},{'$pull': {'favourites': fav_document["_id"]}})
     elif fav_document is None:
         raise document_not_found_exception
-    if fav_document["public"] == False and not fav_document["author"] == current_user and not current_user in fav_document["editors"]:
+    if fav_document["public"] == False and not fav_document["author"] == current_user["username"] and not current_user in fav_document["editors"]:
         raise forbidden_exception  
         
 
