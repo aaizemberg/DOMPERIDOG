@@ -116,7 +116,7 @@ async def get_current_user_favourites(
         total_pages = document_collection.count_documents({"_id": {"$in": current_user["favourites"]}}) // page_size + 1,
         page_size = page_size,
         documents = documents
-    ) #TODO devolver los documentos
+    )
 
 
 @router.delete(

@@ -53,12 +53,12 @@ async def create_document(
     response_model = PaginatedDocument
 )
 async def search_document(
-        search: str = "",
+        query: str = "",
         page: int = 1,
         page_size: int = 10,
     ):
 
-    search_expr = re.compile(f".*{search}.*", re.I)
+    search_expr = re.compile(f".*{query}.*", re.I)
 
     search_request = {
         '$and': [
@@ -79,7 +79,7 @@ async def search_document(
         total_pages = document_collection.count_documents(search_request) // page_size + 1,
         page_size = page_size,
         documents = documents
-    ) #TODO devolver los documentos
+    )
 
 @router.get(
         "/{document_id}", 
