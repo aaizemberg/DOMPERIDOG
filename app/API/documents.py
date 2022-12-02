@@ -10,18 +10,9 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 from typing import List
-from emoji import UNICODE_EMOJI
 import re
 
 router = APIRouter()
-
-def is_emoji(s):
-    count = 0
-    for emoji in UNICODE_EMOJI:
-        count += s.count(emoji)
-        if count > 1:
-            return False
-    return bool(count)
 
 @router.post(
         "", 
@@ -45,16 +36,13 @@ async def create_document(
 
     if document.title == "":
         raise title_bad_request_exception
-
-    if(not document.emoji == None and not is_emoji(document.emoji))
-        raise emoji_bad_request_exception
         
 
     new_document = {
         "title": document.title,
         "content": document.content,
         "author": current_user["username"],
-        "emoji": document.emoji.encode('utf-8'),
+        "emoji": document.emoji,
         "editors": [],
         "public": True,
         "creation_date": datetime.now()
