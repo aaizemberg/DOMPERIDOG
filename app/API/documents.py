@@ -10,9 +10,18 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 from typing import List
+from emoji import UNICODE_EMOJI
 import re
 
 router = APIRouter()
+
+def is_emoji(s):
+    count = 0
+    for emoji in UNICODE_EMOJI:
+        count += s.count(emoji)
+        if count > 1:
+            return False
+    return bool(count)
 
 @router.post(
         "", 
@@ -24,18 +33,28 @@ async def create_document(
         current_user: User = Depends(get_current_user)
     ):
 
-    bad_request_exception = HTTPException(
+    title_bad_request_exception = HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Title cannot be empty",
         )
+    
+    emoji_bad_request_exception = HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Must be one emoji",
+        )
 
     if document.title == "":
-        raise bad_request_exception
+        raise title_bad_request_exception
+
+    if(not document.emoji == None and not is_emoji(document.emoji))
+        raise emoji_bad_request_exception
+        
 
     new_document = {
         "title": document.title,
         "content": document.content,
         "author": current_user["username"],
+        "emoji": document.emoji.encode('utf-8'),
         "editors": [],
         "public": True,
         "creation_date": datetime.now()
@@ -178,7 +197,7 @@ async def edit_document_by_id(
         new_title = edit_document["title"]
     
 
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content} },  return_document = ReturnDocument.AFTER)
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content, "emoji": document.emoji.encode('utf-8')} },  return_document = ReturnDocument.AFTER)
     return return_document
 
 

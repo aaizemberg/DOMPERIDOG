@@ -9,6 +9,7 @@ pydantic.json.ENCODERS_BY_TYPE[ObjectId]=str
 class Document(BaseModel):
     title: str
     content: str
+    emoji: str
     author: str
     editors: List[str]
     public: bool
