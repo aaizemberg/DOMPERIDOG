@@ -185,7 +185,7 @@ async def edit_document_by_id(
         new_title = edit_document["title"]
     
 
-    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content, "emoji": document.emoji.encode('utf-8')} },  return_document = ReturnDocument.AFTER)
+    return_document = document_collection.find_one_and_update({"_id": ObjectId(document_id)}, { '$set': { "title" :  new_title, "content": document.content, "emoji": document.emoji)} },  return_document = ReturnDocument.AFTER)
     return return_document
 
 
