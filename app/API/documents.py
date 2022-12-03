@@ -193,7 +193,7 @@ async def edit_document_by_id(
 "/{document_id}/favourite", 
 status_code = status.HTTP_200_OK
 )
-async def change_document_editor_by_username(
+async def change_favourite_document_status_by_id(
         document_id: str,
         current_user: User = Depends(get_current_user)
     ):
