@@ -24,3 +24,4 @@ rsa==4.9
 six==1.16.0
 python-dotenv==0.21.0
 python-multipart==0.0.5
+emoji==2.2.0
