@@ -11,10 +11,9 @@ from bson.objectid import ObjectId
 from pymongo import ReturnDocument
 from typing import List
 import re
-from emoji import UNICODE_EMOJI
-
+from emoji import EMOJI_DATA
 def is_emoji(s):
-    return s in UNICODE_EMOJI
+    return s in EMOJI_DATA
 
 router = APIRouter()
 
@@ -37,7 +36,7 @@ async def create_document(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Emoji field must be an emoji",
         )
-    if not is_emoji(document.emoji)
+    if not is_emoji(document.emoji):
         raise emoji_bad_request_exception  
 
     if document.title == "":
