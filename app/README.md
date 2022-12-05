@@ -18,11 +18,13 @@ Once the db is running, ensure that you have Python 3.7 or above installed as th
 pip install -r requirements.txt
 ```
 
-Finally, once the requirments are installed, start the API with:
+Finally  once the requirments are installed, outside of the ```./app``` directory, start the API with:
 
 ```shell
 uvicorn app.main:app
 ```
+
+
 
 The API will serve on port 8000, you can use localhost:8000/docs to interact with it.
 
