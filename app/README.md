@@ -21,6 +21,7 @@ pip install -r requirements.txt
 Finally  once the requirments are installed, outside of the ```./app``` directory, start the API with:
 
 ```shell
+cd ..
 uvicorn app.main:app
 ```
 

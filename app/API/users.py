@@ -9,6 +9,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import List
 from bson.objectid import ObjectId
+import re
 
 pwd_hasher = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
@@ -22,6 +23,23 @@ router = APIRouter()
 async def register(
         user: UserCredentials
     ):
+
+    not_valid_password = HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="Password is not valid. Must contain 1 upper letter, 1 lower letter, 1 number and be at least 8 characters long"
+    )
+
+    not_valid_username = HTTPException(
+      status_code=status.HTTP_400_BAD_REQUEST,
+      detail="Username must be at least 4 characters long and contain only alphanumeric characters, underscores, periods, and dashes",
+    )
+
+    if not is_valid_password(user.password):
+      raise not_valid_password
+
+    if not is_valid_username(user.username):
+        raise not_valid_username
+
     new_user = {
         "username": user.username,
         "password": pwd_hasher.hash(user.password),
@@ -131,3 +149,28 @@ async def delete_user_by_username(
         document_collection.delete_one({"_id": document["_id"]})
     user_collection.delete_one({"username": current_user["username"]})
     return {}
+
+
+def is_valid_password(password: str) -> bool:
+    if len(password) < 8:
+        return False
+
+    if not re.search("[a-z]", password):
+        return False
+
+    if not re.search("[A-Z]", password):
+        return False
+
+    if not re.search("[0-9]", password):
+        return False
+
+    return True
+
+def is_valid_username(username: str) -> bool:
+    if len(username) < 4:
+        return False
+
+    if not re.search("^[a-zA-Z0-9_.-]+$", username):
+        return False
+
+    return True
