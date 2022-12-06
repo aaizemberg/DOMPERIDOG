@@ -5,7 +5,8 @@
 API for taking notes and writing documents. Includes user support eith authentication, document visibility, multiple editors, favourite documents, etc.
 
 ## Set Up
-To use the API running, you need a MongoDB instance running. The docker offical image can be used by executing the following command inside the
+
+To use the API, you need a MongoDB instance running. The docker offical image can be used by executing the following command inside the
 ```./app``` directory
 
 ```shell
