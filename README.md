@@ -1,4 +1,5 @@
-# DOMPERIDOG - BD2-TP
+# DOMPERIDOG NOTES - BD2-TP
+# By: Federico Gustavo Rojas frojas@itba.edu.ar Roberto Franco Rodriguez Tulasne robrodriguez@itba.edu.ar Leonardo Agustín D'Agostino ldagostino@itba.edu.ar
 
 **Important: Some of the requirements to run the API are not available on windows, so we recommend using linux or a venv.**
 
