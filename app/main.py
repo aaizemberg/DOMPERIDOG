@@ -16,7 +16,7 @@ def get_application():
 
     @app.get("/")
     async def root():
-        return {"By": "Federico Gustavo Rojas - frojas@itba.edu.ar ; Roberto Franco Rodriguez Tulasne - robrodriguez@itba.edu.ar ; Leonardo Agustín D'Agostino - ldagostino@itba.edu.ar"}
+        return {"Hello world!": "By: Federico Gustavo Rojas - frojas@itba.edu.ar ; Roberto Franco Rodriguez Tulasne - robrodriguez@itba.edu.ar ; Leonardo Agustín D'Agostino - ldagostino@itba.edu.ar"}
 
     return app
 
